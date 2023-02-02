@@ -3,7 +3,7 @@ name: UScore CI
 on: push
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     services:
       db:
