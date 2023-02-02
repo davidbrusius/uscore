@@ -1,19 +1,61 @@
 # UScore
 
-To start your Phoenix server:
+UScore is a User Scoring API that keeps track of user points over time.
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Requirements
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+* [Docker]
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Setup
 
-## Learn more
+_This setup covers installation using [Docker]. Make sure you have it up and running before continuing._
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Clone the repository into your local machine:
+
+```sh
+$ git clone git@github.com:davidbrusius/uscore.git
+```
+
+Switch to the project directory:
+
+```sh
+cd uscore
+```
+
+Build docker images:
+
+```sh
+docker-compose build
+```
+
+Setup UScore database:
+
+```sh
+docker-compose run uscore mix ecto.setup
+```
+
+All done! You can now run the UScore API!
+
+## Running
+
+Run the UScore API:
+
+```sh
+$ docker-compose up -d
+```
+
+Watch application logs:
+
+```sh
+$ docker-compose logs -f
+```
+
+The API will be available at http://localhost:4000
+
+Shutdown the UScore API:
+
+```sh
+$ docker-compose down
+```
+
+[docker]: (https://www.docker.com/)
