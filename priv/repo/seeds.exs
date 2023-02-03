@@ -1,11 +1,10 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     UScore.Repo.insert!(%UScore.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias UScore.Repo
+
+# Generate 1,000,000 user seeds with 0 points (default value for this column)
+Repo.query!("TRUNCATE TABLE users;")
+
+Repo.query!("""
+INSERT INTO users (inserted_at, updated_at) (
+  SELECT date_now, date_now FROM generate_series(1, 1000000), NOW() as date_now
+);
+""")
