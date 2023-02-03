@@ -2,6 +2,9 @@
 
 UScore is a User Scoring API that keeps track of user points over time.
 
+**GitHub Pull Requests contain valuable information about decisions made during the
+coding process. Please refer to them for more details.**
+
 ## Requirements
 
 * [Docker]
