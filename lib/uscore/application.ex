@@ -10,10 +10,13 @@ defmodule UScore.Application do
     children = [
       # Start the Ecto repository
       UScore.Repo,
+      # Start the User Points Server
+      UScore.Users.UserPointsServer,
       # Start the Telemetry supervisor
       UScoreWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: UScore.PubSub},
+      {Task.Supervisor, name: UScore.TaskSupervisor},
       # Start the Endpoint (http/https)
       UScoreWeb.Endpoint
       # Start a worker by calling: UScore.Worker.start_link(arg)

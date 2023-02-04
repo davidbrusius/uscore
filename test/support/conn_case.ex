@@ -23,6 +23,7 @@ defmodule UScoreWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import UScoreWeb.ConnCase
+      import UScore.DateTimeHelpers
 
       alias UScoreWeb.Router.Helpers, as: Routes
 

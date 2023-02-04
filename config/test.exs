@@ -1,5 +1,7 @@
 import Config
 
+config :uscore, clock: UScore.Clock.Mock
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
@@ -8,7 +10,7 @@ import Config
 config :uscore, UScore.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: System.get_env("POSTGRES_HOST", "db"),
   database: "uscore_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
