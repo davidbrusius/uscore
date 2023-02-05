@@ -55,10 +55,12 @@ $ docker-compose logs -f
 
 The API will be available at http://localhost:4000
 
+**Important: on the first run all users will have 0 points so you will need to wait for the first 1 minute interval to see users being returned by the API.**
+
 Shutdown the UScore API:
 
 ```sh
-$ docker-compose down
+$ docker-compose down --remove-orphans
 ```
 
 Run tests:
