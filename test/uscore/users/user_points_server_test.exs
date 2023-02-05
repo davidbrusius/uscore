@@ -58,16 +58,22 @@ defmodule UScore.Users.UserPointsServerTest do
       start_supervised!(UserPointsServer)
 
       yesterday = ClockMock.utc_now() |> DateTime.add(-1, :day) |> date_to_db_format()
-      user = %{points: -1, inserted_at: yesterday, updated_at: yesterday}
+      user = %{points: 0, inserted_at: yesterday, updated_at: yesterday}
       Repo.insert_all(User, [user, user, user])
+      Repo.query!("SELECT setseed(1);")
 
       send(UserPointsServer, :update)
       wait_for_message_process!()
 
       date_now = ClockMock.utc_now() |> date_to_db_format()
 
-      for user <- Repo.all(User) do
-        assert user.points in 0..100
+      [user1, user2, user3] = users = Repo.all(User)
+
+      assert 40 == user1.points
+      assert 75 == user2.points
+      assert 39 == user3.points
+
+      for user <- users do
         assert date_now == user.inserted_at
         assert date_now == user.updated_at
       end
