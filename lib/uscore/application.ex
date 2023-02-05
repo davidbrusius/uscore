@@ -7,21 +7,13 @@ defmodule UScore.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
-      UScore.Repo,
-      # Start the User Points Server
-      UScore.Users.UserPointsServer,
-      # Start the Telemetry supervisor
-      UScoreWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: UScore.PubSub},
-      {Task.Supervisor, name: UScore.TaskSupervisor},
-      # Start the Endpoint (http/https)
-      UScoreWeb.Endpoint
-      # Start a worker by calling: UScore.Worker.start_link(arg)
-      # {UScore.Worker, arg}
-    ]
+    children =
+      [
+        UScore.Repo,
+        UScoreWeb.Telemetry,
+        {Phoenix.PubSub, name: UScore.PubSub},
+        {Task.Supervisor, name: UScore.TaskSupervisor}
+      ] ++ servers(env: Mix.env()) ++ [UScoreWeb.Endpoint]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -36,4 +28,8 @@ defmodule UScore.Application do
     UScoreWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  defp servers(env: :test), do: []
+
+  defp servers(env: _), do: [UScore.Users.UserPointsServer]
 end
