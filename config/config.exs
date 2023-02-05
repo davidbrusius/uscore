@@ -9,7 +9,9 @@ import Config
 
 config :uscore,
   namespace: UScore,
-  ecto_repos: [UScore.Repo]
+  ecto_repos: [UScore.Repo],
+  clock: UScore.Clock.Real,
+  user_points_server_update_interval: :timer.minutes(1)
 
 # Configures the endpoint
 config :uscore, UScoreWeb.Endpoint,

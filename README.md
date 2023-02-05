@@ -61,4 +61,10 @@ Shutdown the UScore API:
 $ docker-compose down
 ```
 
+Run tests:
+
+```sh
+docker-compose run uscore mix test
+```
+
 [docker]: (https://www.docker.com/)

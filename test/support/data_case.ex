@@ -24,6 +24,7 @@ defmodule UScore.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import UScore.DataCase
+      import UScore.DateTimeHelpers
     end
   end
 
