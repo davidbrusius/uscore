@@ -4,12 +4,72 @@ defmodule UScore.UsersTest do
   alias UScore.Users.User
   alias UScore.Clock.Mock, as: ClockMock
 
-  describe "regenerate_points/0" do
-    setup do
-      freeze_time()
-      :ok
+  setup do
+    freeze_time()
+    :ok
+  end
+
+  describe "fetch_users/1" do
+    test "fetches users with points greater than min_number" do
+      date_now = ClockMock.utc_now() |> date_to_db_format()
+
+      Repo.insert_all(User, [
+        %{points: 0, inserted_at: date_now, updated_at: date_now},
+        %{points: 50, inserted_at: date_now, updated_at: date_now},
+        %{points: 100, inserted_at: date_now, updated_at: date_now}
+      ])
+
+      min_number = 10
+      users = Users.fetch_users(min_number)
+
+      assert [%User{points: 50}, %User{points: 100}] = users
     end
 
+    test "returns at most two users" do
+      date_now = ClockMock.utc_now() |> date_to_db_format()
+
+      Repo.insert_all(User, [
+        %{points: 50, inserted_at: date_now, updated_at: date_now},
+        %{points: 75, inserted_at: date_now, updated_at: date_now},
+        %{points: 100, inserted_at: date_now, updated_at: date_now}
+      ])
+
+      min_number = 10
+      users = Users.fetch_users(min_number)
+
+      assert [%User{points: 50}, %User{points: 75}] = users
+    end
+
+    test "returns single user" do
+      date_now = ClockMock.utc_now() |> date_to_db_format()
+
+      Repo.insert_all(User, [
+        %{points: 0, inserted_at: date_now, updated_at: date_now},
+        %{points: 50, inserted_at: date_now, updated_at: date_now}
+      ])
+
+      min_number = 10
+      users = Users.fetch_users(min_number)
+
+      assert [%User{points: 50}] = users
+    end
+
+    test "returns no users when points are lower than min_number" do
+      date_now = ClockMock.utc_now() |> date_to_db_format()
+
+      Repo.insert_all(User, [
+        %{points: 0, inserted_at: date_now, updated_at: date_now},
+        %{points: 5, inserted_at: date_now, updated_at: date_now}
+      ])
+
+      min_number = 10
+      users = Users.fetch_users(min_number)
+
+      assert [] == users
+    end
+  end
+
+  describe "regenerate_points/0" do
     test "regenerates all users points randomly" do
       date_now = ClockMock.utc_now() |> date_to_db_format()
       user = %{points: -1, inserted_at: date_now, updated_at: date_now}

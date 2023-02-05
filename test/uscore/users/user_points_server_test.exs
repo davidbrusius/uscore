@@ -11,15 +11,52 @@ defmodule UScore.Users.UserPointsServerTest do
 
   describe "init" do
     test "sets min_number and timestamp" do
+      start_supervised!({UserPointsServer, min_number: 10})
+
       state = :sys.get_state(UserPointsServer)
 
-      assert state.min_number in 0..100
+      assert 10 == state.min_number
       assert is_nil(state.timestamp)
+    end
+  end
+
+  describe "fetch_users" do
+    test "returns a list of at most two users with more points than min_number" do
+      start_supervised!({UserPointsServer, min_number: 10})
+      date_now = ClockMock.utc_now() |> date_to_db_format()
+
+      user_points = 50
+      user = %{points: user_points, inserted_at: date_now, updated_at: date_now}
+      Repo.insert_all(User, [user, user, user])
+
+      {:ok, result} = UserPointsServer.fetch_users()
+
+      assert [%User{points: ^user_points}, %User{points: ^user_points}] = result.users
+    end
+
+    test "returns the previous timestamp" do
+      start_supervised!({UserPointsServer, min_number: 10})
+
+      {:ok, %{timestamp: timestamp}} = UserPointsServer.fetch_users()
+      assert is_nil(timestamp)
+
+      {:ok, %{timestamp: timestamp}} = UserPointsServer.fetch_users()
+      assert timestamp == ClockMock.utc_now() |> date_to_db_format()
+    end
+
+    @tag capture_log: true
+    test "returns error when task exits" do
+      min_number = "force-exit-not-a-number"
+      start_supervised!({UserPointsServer, min_number: min_number})
+
+      assert {:error, "Unable to fetch users"} == UserPointsServer.fetch_users()
     end
   end
 
   describe "handle_info - :update" do
     test "regenerates users points and timestamps" do
+      start_supervised!(UserPointsServer)
+
       yesterday = ClockMock.utc_now() |> DateTime.add(-1, :day) |> date_to_db_format()
       user = %{points: -1, inserted_at: yesterday, updated_at: yesterday}
       Repo.insert_all(User, [user, user, user])
@@ -37,9 +74,7 @@ defmodule UScore.Users.UserPointsServerTest do
     end
 
     test "updates min_number" do
-      :sys.replace_state(UserPointsServer, fn state ->
-        %{state | min_number: -1}
-      end)
+      start_supervised!({UserPointsServer, min_number: -1})
 
       send(UserPointsServer, :update)
       wait_for_message_process!()
@@ -54,7 +89,7 @@ defmodule UScore.Users.UserPointsServerTest do
       # speed up tests by temporarily setting update interval to 0
       switch_update_interval(50)
 
-      points_server_pid = Process.whereis(UserPointsServer)
+      points_server_pid = start_supervised!(UserPointsServer)
       :erlang.trace(points_server_pid, true, [:receive])
 
       send(UserPointsServer, :update)
